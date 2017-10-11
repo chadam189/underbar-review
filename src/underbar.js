@@ -376,10 +376,8 @@
   _.shuffle = function(array) {
     var newArr = [];
     for (var i = 0; i < array.length; i++) {
-      debugger;
       var randNum = Math.floor(Math.random() * array.length);
-      debugger;
-      while (!newArr[randNum]) {
+      while (newArr[randNum] !== undefined) {
         randNum = Math.floor(Math.random() * array.length);
       }
       newArr[randNum] = array[i];
