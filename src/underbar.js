@@ -228,7 +228,17 @@
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
-    // TIP: There's a very clever way to re-use every() here.
+    if (arguments[1] === undefined) {
+      iterator = _.identity;
+    }
+    return _.reduce(collection, function(areAnyTrue, item) {
+      if (areAnyTrue) {
+        return true;
+      } else {
+        return !!iterator(item);
+      }
+    }, false);
+    
   };
 
 
@@ -251,11 +261,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        obj[key] = arguments[i][key];
+      }
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        if (!obj.hasOwnProperty(key)) {
+          obj[key] = arguments[i][key];
+        }
+      }
+    }
+    return obj;
   };
 
 
@@ -281,7 +305,7 @@
     return function() {
       if (!alreadyCalled) {
         // TIP: .apply(this, arguments) is the standard way to pass on all of the
-        // infromation from one function call to another.
+        // information from one function call to another.
         result = func.apply(this, arguments);
         alreadyCalled = true;
       }
@@ -299,6 +323,30 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    // var prevInvocations = {};
+    
+    // return function () {
+    //   if (prevInvocations.hasOwnProperty(arguments)) {
+    //     return prevInvocations[arguments];
+    //   } else {
+    //     prevInvocations[arguments] = func.apply(this, arguments);
+    //     return prevInvocations[arguments];
+    //   }
+    // };
+    var pastArgs = [];
+    var pastResults = [];
+
+    return function () {
+      var currentArgs = JSON.stringify(arguments);
+      if (_.contains(pastArgs, currentArgs)) {
+        var idx = _.indexOf(pastArgs, currentArgs);
+        return pastResults[idx];
+      } else {
+        pastArgs.push(currentArgs);
+        pastResults.push(func.apply(this, arguments));
+        return pastResults[pastResults.length - 1];
+      }
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -308,6 +356,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments);
+    setTimeout(function() {
+      func.apply(this, args.slice(2, args.length));
+    }, wait);
   };
 
 
@@ -322,6 +374,17 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var newArr = [];
+    for (var i = 0; i < array.length; i++) {
+      debugger;
+      var randNum = Math.floor(Math.random() * array.length);
+      debugger;
+      while (!newArr[randNum]) {
+        randNum = Math.floor(Math.random() * array.length);
+      }
+      newArr[randNum] = array[i];
+    }
+    return newArr;
   };
 
 
